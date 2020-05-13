@@ -1,16 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 8px;
-  transition: background 0.3s;
-  opacity: ${({ opacity }) => opacity};
-  &:hover {
-    background: #3e81de50;
-  }
-`;
 const Title = styled.h4`
   margin: 0;
   margin-bottom: 5px;
@@ -26,21 +16,72 @@ const Avatar = styled.div`
 const RightSide = styled.div`
   flex: 1;
 `;
+const Details = styled.div`
+  small {
+    display: inline-block;
+  }
+`;
+const Buttons = styled.div`
+  display: none;
+  min-height: 36px;
+`;
+const Button = styled.a`
+  border: 2px solid #003CD7;
+  border-radius: 5px;
+  background: #fff;
 
-export const SearchResultItem = ({ item }) => (
-  <Wrapper>
-    <Avatar>&nbsp;</Avatar>
-    <RightSide>
-      <Title>{item.titleweb}</Title>
-      <div>
-        <small>by {item.authorweb}</small>
-      </div>
-      <div>
-        <small>Released {new Date(item.onsaledate).toDateString()}</small>
-      </div>
-    </RightSide>
-  </Wrapper>
-);
+  color: #003CD7;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+
+  padding: 4px 12px;
+  margin-top: 5px;
+  margin-right: 8px;
+  display: inline-block;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+  transition: background 0.3s;
+  opacity: ${({ opacity }) => opacity};
+  cursor: default;
+  &:hover {
+    background: #003CD710;
+    ${Details} {
+      display: none;
+    }
+    ${Buttons} {
+      display: block;
+    }
+  }
+`;
+
+export const SearchResultItem = ({ item }) => {
+  const keyword = encodeURIComponent(item.titleweb + " " + item.authorweb);
+  return (
+    <Wrapper>
+      <Avatar>&nbsp;</Avatar>
+      <RightSide>
+        <Title>{item.titleweb}</Title>
+        <Details>
+          <small>by {item.authorweb}</small>
+          <small>Released {new Date(item.onsaledate).toDateString()}</small>
+        </Details>
+        <Buttons>
+          <Button href={`https://www.amazon.com/s?k=${keyword}`} target="_blank">
+            AMAZON
+          </Button>
+          <Button href={`https://www.google.com/search?q=${keyword}`} target="_blank">
+            GOOGLE
+          </Button>
+        </Buttons>
+      </RightSide>
+    </Wrapper>
+  )
+};
 
 const Bar = styled.div`
   background: ${({ color = "#e1e1e1" }) => color};
@@ -54,9 +95,9 @@ const Skeleton = ({ opacity = "100%" }) => (
   <Wrapper opacity={opacity}>
     <Avatar>&nbsp;</Avatar>
     <RightSide>
-      <Bar color="#ccc">&nbsp;</Bar>
+      <Bar width={"90%"} color="#ccc">&nbsp;</Bar>
+      <Bar width={"70%"}>&nbsp;</Bar>
       <Bar width={"60%"}>&nbsp;</Bar>
-      <Bar width={"80%"}>&nbsp;</Bar>
     </RightSide>
   </Wrapper>
 );
@@ -64,7 +105,7 @@ const Skeleton = ({ opacity = "100%" }) => (
 export const Skeletons = ({ x = 3 }) => (
   <>
     {new Array(x).fill().map((v, idx) => (
-      <Skeleton key={idx} opacity={100 - 25 * (idx + 1) + "%"} />
+      <Skeleton key={idx} opacity={100 - 33 * (idx) + "%"} />
     ))}
   </>
 );

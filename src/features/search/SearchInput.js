@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import _ from "lodash";
 import { apiSearchWorks } from "app/api";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,10 +72,6 @@ export const SearchInput = ({ id }) => {
 
   const searchResults = useSelector(selectResults(id));
 
-  const [hideResults, setResultsHidden] = useState(false);
-
-  const handleKeyDown = (e) => e.key === "Escape" && e.currentTarget.blur();
-
   return (
     <Wrapper>
       <Input
@@ -83,20 +79,15 @@ export const SearchInput = ({ id }) => {
         type="text"
         placeholder="Search"
         onChange={handleChange}
-        onFocus={() => setResultsHidden(false)}
-        onBlur={() => setResultsHidden(true)}
-        onKeyDown={handleKeyDown}
         autoFocus
       />
-      {!hideResults && (
-        <SearchResultsArea>
-          {isSearching && <Skeletons />}
-          {!isSearching &&
-            searchResults.map((item) => (
-              <SearchResultItem key={item.workid} item={item} />
-            ))}
-        </SearchResultsArea>
-      )}
+      <SearchResultsArea>
+        {isSearching && <Skeletons />}
+        {!isSearching &&
+          searchResults.map((item) => (
+            <SearchResultItem key={item.workid} item={item} />
+          ))}
+      </SearchResultsArea>
     </Wrapper>
   );
 };
