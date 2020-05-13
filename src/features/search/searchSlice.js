@@ -1,25 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const selectSearchById = (state, id) => state.search[id] || {};
-
 export const searchSlice = createSlice({
   name: "search",
-  initialState: {},
+  initialState: {
+    results: {},
+  },
   reducers: {
-    initSearch: (state, action) => {
-      const { id } = action.payload;
-      state[id] = {};
-    },
     receiveSearch: (state, action) => {
       const { id, results } = action.payload;
-      state[id].results = results;
+      state.results[id] = results;
     },
   },
 });
 
-export const { initSearch, receiveSearch } = searchSlice.actions;
+export const { receiveSearch } = searchSlice.actions;
 
-export const selectResults = (id) => (state) =>
-  selectSearchById(state, id).results || [];
+export const selectResults = (id) => (state) => state.search.results[id] || [];
 
 export default searchSlice.reducer;
