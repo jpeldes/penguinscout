@@ -6,6 +6,7 @@ const Wrapper = styled.div`
   flex-wrap: wrap;
   padding: 8px;
   transition: background 0.3s;
+  opacity: ${({ opacity }) => opacity};
   &:hover {
     background: #3e81de50;
   }
@@ -39,4 +40,31 @@ export const SearchResultItem = ({ item }) => (
       </div>
     </RightSide>
   </Wrapper>
+);
+
+const Bar = styled.div`
+  background: ${({ color = "#e1e1e1" }) => color};
+  border-radius: 10px;
+  height: 12px;
+  margin-bottom: 6px;
+  width: ${({ width = "100%" }) => width};
+`;
+
+const Skeleton = ({ opacity = "100%" }) => (
+  <Wrapper opacity={opacity}>
+    <Avatar>&nbsp;</Avatar>
+    <RightSide>
+      <Bar color="#ccc">&nbsp;</Bar>
+      <Bar width={"60%"}>&nbsp;</Bar>
+      <Bar width={"80%"}>&nbsp;</Bar>
+    </RightSide>
+  </Wrapper>
+);
+
+export const Skeletons = ({ x = 3 }) => (
+  <>
+    {new Array(x).fill().map((v, idx) => (
+      <Skeleton key={idx} opacity={100 - 25 * (idx + 1) + "%"} />
+    ))}
+  </>
 );

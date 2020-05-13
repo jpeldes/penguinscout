@@ -10,7 +10,7 @@ import {
 } from "./searchSlice";
 
 import styled from "styled-components";
-import { SearchResultItem } from "./SearchResultItem";
+import { SearchResultItem, Skeletons } from "./SearchResultItem";
 
 const Wrapper = styled.div`
   position: relative;
@@ -82,7 +82,7 @@ export const SearchInput = ({ id }) => {
         autoFocus
       />
       <SearchResultsArea>
-        {isSearching && <p>Loading...</p>}
+        {isSearching && <Skeletons />}
         {!isSearching &&
           searchResults.map((item) => (
             <SearchResultItem key={item.workid} item={item} />
