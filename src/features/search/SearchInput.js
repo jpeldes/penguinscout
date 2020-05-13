@@ -2,7 +2,12 @@ import React, { useRef } from "react";
 import _ from "lodash";
 import { apiSearchWorks } from "app/api";
 import { useDispatch, useSelector } from "react-redux";
-import { receiveSearch, selectResults } from "./searchSlice";
+import {
+  receiveSearch,
+  toggleSearchState,
+  selectResults,
+  selectIsSearching,
+} from "./searchSlice";
 
 import styled from "styled-components";
 import { SearchResultItem } from "./SearchResultItem";
@@ -38,19 +43,30 @@ export const SearchInput = ({ id }) => {
   const dispatch = useDispatch();
   const inputEl = useRef(null);
 
+  const isSearching = useSelector(selectIsSearching(id));
+
   const goSearch = (searchString) => {
-    apiSearchWorks(searchString).then(({ data }) => {
-      const results = data.work || [];
-      dispatch(receiveSearch({ id, results }));
-    });
+    apiSearchWorks(searchString)
+      .then(results => {
+        // Update only if query still matches (fix race condition)
+        // TODO: Better solution would be to cancel API call
+        if (inputEl.current.value === searchString) {
+          dispatch(receiveSearch({ id, results }));
+        }
+      })
+      .finally(() => {
+        dispatch(toggleSearchState({ id, isSearching: false }));
+      });
   };
-  const debouncedSearch = _.debounce(goSearch, 300);
+  const debouncedSearch = useRef(_.debounce(goSearch, 300)).current;
   const handleChange = () => {
     const searchString = inputEl.current.value;
     if (!searchString) {
       debouncedSearch.cancel();
       dispatch(receiveSearch({ id, results: [] }));
+      dispatch(toggleSearchState({ id, isSearching: false }));
     } else {
+      dispatch(toggleSearchState({ id, isSearching: true }));
       debouncedSearch(searchString);
     }
   };
@@ -67,9 +83,11 @@ export const SearchInput = ({ id }) => {
         autoFocus
       />
       <SearchResultsArea>
-        {searchResults.map((item) => (
-          <SearchResultItem key={item.workid} item={item} />
-        ))}
+        {isSearching && <p>Loading...</p>}
+        {!isSearching &&
+          searchResults.map((item) => (
+            <SearchResultItem key={item.workid} item={item} />
+          ))}
       </SearchResultsArea>
     </Wrapper>
   );
