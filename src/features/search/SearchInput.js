@@ -45,18 +45,17 @@ export const SearchInput = ({ id }) => {
 
   const isSearching = useSelector(selectIsSearching(id));
 
-  const goSearch = (searchString) => {
-    apiSearchWorks(searchString)
-      .then(results => {
+  const goSearch = async (searchString) => {
+    try {
+      const results = await apiSearchWorks(searchString);
+      if (inputEl.current.value === searchString) {
         // Update only if query still matches (fix race condition)
         // TODO: Better solution would be to cancel API call
-        if (inputEl.current.value === searchString) {
-          dispatch(receiveSearch({ id, results }));
-        }
-      })
-      .finally(() => {
-        dispatch(toggleSearchState({ id, isSearching: false }));
-      });
+        dispatch(receiveSearch({ id, results }));
+      }
+    } finally {
+      dispatch(toggleSearchState({ id, isSearching: false }));
+    }
   };
   const debouncedSearch = useRef(_.debounce(goSearch, 300)).current;
   const handleChange = () => {
