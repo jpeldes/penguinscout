@@ -38,18 +38,22 @@ export const SearchInput = ({ id }) => {
   const dispatch = useDispatch();
   const inputEl = useRef(null);
 
-  const goSearch = (e) => {
-    const searchString = inputEl.current.value;
-    if (!searchString) {
-      dispatch(receiveSearch({ id, results: [] }));
-    } else {
-      apiSearchWorks(searchString).then(({ data }) => {
-        const results = data.work || [];
-        dispatch(receiveSearch({ id, results }));
-      });
-    }
+  const goSearch = (searchString) => {
+    apiSearchWorks(searchString).then(({ data }) => {
+      const results = data.work || [];
+      dispatch(receiveSearch({ id, results }));
+    });
   };
   const debouncedSearch = _.debounce(goSearch, 300);
+  const handleChange = () => {
+    const searchString = inputEl.current.value;
+    if (!searchString) {
+      debouncedSearch.cancel();
+      dispatch(receiveSearch({ id, results: [] }));
+    } else {
+      debouncedSearch(searchString);
+    }
+  };
 
   const searchResults = useSelector(selectResults(id));
 
@@ -59,7 +63,7 @@ export const SearchInput = ({ id }) => {
         ref={inputEl}
         type="text"
         placeholder="Search"
-        onChange={debouncedSearch}
+        onChange={handleChange}
         autoFocus
       />
       <SearchResultsArea>
