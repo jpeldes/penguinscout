@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -12,6 +13,11 @@ const Avatar = styled.div`
   min-width: 60px;
   margin-right: 10px;
   border-radius: 90px;
+
+  overflow: hidden;
+  img {
+    max-width: 60px;
+  }
 `;
 const RightSide = styled.div`
   flex: 1;
@@ -26,11 +32,11 @@ const Buttons = styled.div`
   min-height: 36px;
 `;
 const Button = styled.a`
-  border: 2px solid #003CD7;
+  border: 2px solid #003cd7;
   border-radius: 5px;
   background: #fff;
 
-  color: #003CD7;
+  color: #003cd7;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -49,7 +55,7 @@ const Wrapper = styled.div`
   opacity: ${({ opacity }) => opacity};
   cursor: default;
   &:hover {
-    background: #003CD710;
+    background: #003cd710;
     ${Details} {
       display: none;
     }
@@ -61,9 +67,18 @@ const Wrapper = styled.div`
 
 export const SearchResultItem = ({ item }) => {
   const keyword = encodeURIComponent(item.titleweb + " " + item.authorweb);
+
+  const getImageUrl = (item) => {
+    let isbn = item.titles.isbn;
+    if (_.isArray(isbn)) {
+      isbn = item.titles.isbn[0];
+    }
+    return `https://reststop.randomhouse.com/resources/titles/${ isbn["$"] }`;
+  };
+
   return (
     <Wrapper>
-      <Avatar>&nbsp;</Avatar>
+      <Avatar><img src={getImageUrl(item)} /></Avatar>
       <RightSide>
         <Title>{item.titleweb}</Title>
         <Details>
@@ -71,16 +86,22 @@ export const SearchResultItem = ({ item }) => {
           <small>Released {new Date(item.onsaledate).toDateString()}</small>
         </Details>
         <Buttons>
-          <Button href={`https://www.amazon.com/s?k=${keyword}`} target="_blank">
+          <Button
+            href={`https://www.amazon.com/s?k=${keyword}`}
+            target="_blank"
+          >
             AMAZON
           </Button>
-          <Button href={`https://www.google.com/search?q=${keyword}`} target="_blank">
+          <Button
+            href={`https://www.google.com/search?q=${keyword}`}
+            target="_blank"
+          >
             GOOGLE
           </Button>
         </Buttons>
       </RightSide>
     </Wrapper>
-  )
+  );
 };
 
 const Bar = styled.div`
@@ -95,7 +116,9 @@ const Skeleton = ({ opacity = "100%" }) => (
   <Wrapper opacity={opacity}>
     <Avatar>&nbsp;</Avatar>
     <RightSide>
-      <Bar width={"90%"} color="#ccc">&nbsp;</Bar>
+      <Bar width={"90%"} color="#ccc">
+        &nbsp;
+      </Bar>
       <Bar width={"70%"}>&nbsp;</Bar>
       <Bar width={"60%"}>&nbsp;</Bar>
     </RightSide>
@@ -105,7 +128,7 @@ const Skeleton = ({ opacity = "100%" }) => (
 export const Skeletons = ({ x = 3 }) => (
   <>
     {new Array(x).fill().map((v, idx) => (
-      <Skeleton key={idx} opacity={100 - 33 * (idx) + "%"} />
+      <Skeleton key={idx} opacity={100 - 33 * idx + "%"} />
     ))}
   </>
 );
