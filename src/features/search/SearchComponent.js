@@ -9,14 +9,14 @@ import {
 } from "./searchSlice";
 
 import styled from "styled-components";
-import { SearchResultItem, Skeletons } from "./SearchResultItem";
+import { Skeletons } from "./SearchSkeleton";
 
 const Wrapper = styled.div`
   position: relative;
   max-width: 300px;
 `;
 
-const Input = styled.input`
+const SearchInput = styled.input`
   border: 2px solid #ccc;
   border-radius: 2px;
   font-size: 15px;
@@ -30,6 +30,7 @@ const Input = styled.input`
 `;
 
 const SearchResultsArea = styled.div`
+  z-index: 1;
   position: absolute;
   background: #f4f4f1;
   max-width: 320px;
@@ -38,18 +39,14 @@ const SearchResultsArea = styled.div`
   overflow: auto;
 `;
 
-export const SearchInput = ({ id, placeholder = "Search...", apiCall }) => {
+const useSearch = (id, apiCall) => {
   const dispatch = useDispatch();
-  const inputEl = useRef(null);
-
-  const isSearching = useSelector(selectIsSearching(id));
+  const inputRef = useRef(null);
 
   const goSearch = async (searchString) => {
     try {
       const results = await apiCall(searchString);
-      if (inputEl.current.value === searchString) {
-        // Update only if query still matches (fix race condition)
-        // TODO: Better solution would be to cancel API call
+      if (inputRef.current.value === searchString) {
         dispatch(receiveSearch({ id, results }));
       }
     } finally {
@@ -57,8 +54,8 @@ export const SearchInput = ({ id, placeholder = "Search...", apiCall }) => {
     }
   };
   const debouncedSearch = useRef(_.debounce(goSearch, 300)).current;
-  const handleChange = () => {
-    const searchString = inputEl.current.value;
+  const handleInputChange = () => {
+    const searchString = inputRef.current.value;
     if (!searchString) {
       debouncedSearch.cancel();
       dispatch(receiveSearch({ id, results: [] }));
@@ -68,12 +65,16 @@ export const SearchInput = ({ id, placeholder = "Search...", apiCall }) => {
       debouncedSearch(searchString);
     }
   };
+  return [inputRef, handleInputChange];
+};
 
+export const SearchComponent = ({ id, placeholder = "Search...", apiCall, SearchResultItem }) => {
+  const [inputEl, handleChange] = useSearch(id, apiCall);
+  const isSearching = useSelector(selectIsSearching(id));
   const searchResults = useSelector(selectResults(id));
-
   return (
     <Wrapper>
-      <Input
+      <SearchInput
         ref={inputEl}
         type="text"
         placeholder={placeholder}

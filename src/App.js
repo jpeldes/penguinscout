@@ -1,8 +1,10 @@
 import React from "react";
-import { SearchInput } from "features/search/SearchInput";
+import { SearchComponent } from "features/search/SearchComponent";
 import styled from "styled-components";
 
 import { apiSearchWorks, apiSearchTitles } from "app/api";
+import { SearchWorksItem } from "features/search/SearchWorksItem";
+import { SearchTitlesItem } from "features/search/SearchTitlesItem";
 
 const Header = styled.header`
   width: 100%;
@@ -15,15 +17,17 @@ function App() {
   return (
     <div className="App">
       <Header>
-        <SearchInput
+        <SearchComponent
           id="books"
           apiCall={apiSearchWorks}
           placeholder="Search books..."
+          SearchResultItem={SearchWorksItem}
         />
-        <SearchInput
+        <SearchComponent
           id="titles"
           apiCall={apiSearchTitles}
-          placeholder="Search titles..."
+          placeholder="Search titles on Amazon.com"
+          SearchResultItem={SearchTitlesItem}
         />
       </Header>
       <main>
