@@ -108,12 +108,6 @@ export const SearchComponent = ({
   const searchResults = useSelector(selectResults(id));
   const errorMessage = useSelector(selectErrorMessage(id));
 
-  const [hasFocus, setFocus] = useState(false);
-  const handleKeyDown = e => {
-    if (e.key === 'Escape') {
-      e.currentTarget.blur();
-    }
-  }
   return (
     <Wrapper>
       <SearchInput
@@ -122,22 +116,16 @@ export const SearchComponent = ({
         type="text"
         placeholder={placeholder}
         onChange={handleChange}
-        onFocus={(e) => setFocus(true)}
-        onBlur={(e) => setFocus(false)}
-        onKeyDown={handleKeyDown}
-        autoFocus
       />
-      {hasFocus && (
-        <SearchResultsArea>
-          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          {foundNothing && <NoResults>No results found.</NoResults>}
-          {isSearching && <Skeletons />}
-          {!isSearching &&
-            searchResults.map((item) => (
-              <SearchResultItem key={item["@uri"]} item={item} />
-            ))}
-        </SearchResultsArea>
-      )}
+      <SearchResultsArea>
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        {foundNothing && <NoResults>No results found.</NoResults>}
+        {isSearching && <Skeletons />}
+        {!isSearching &&
+          searchResults.map((item) => (
+            <SearchResultItem key={item["@uri"]} item={item} />
+          ))}
+      </SearchResultsArea>
     </Wrapper>
   );
 };

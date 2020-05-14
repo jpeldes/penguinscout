@@ -82,10 +82,6 @@ function App() {
 
           <h3>Other features</h3>
           <ul>
-            <li>
-              The search results popup can be closed by removing focus from
-              input, or by pressing Esc key
-            </li>
             <li>Searching state is rendered with "skeletons".</li>
             <li>
               Error messages are rendered in search results area. Try disabling
