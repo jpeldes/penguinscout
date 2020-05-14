@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -68,7 +68,12 @@ const useSearch = (id, apiCall) => {
           dispatch(receiveSearch({ id, results }));
         }
       } catch (ex) {
-        dispatch(setErrorMessage({ id, errorMessage: "An error occurred. Please try again later." }));
+        dispatch(
+          setErrorMessage({
+            id,
+            errorMessage: "An error occurred. Please try again later.",
+          })
+        );
       } finally {
         dispatch(toggleSearchState({ id, isSearching: false }));
       }
@@ -102,6 +107,13 @@ export const SearchComponent = ({
   const isSearching = useSelector(selectIsSearching(id));
   const searchResults = useSelector(selectResults(id));
   const errorMessage = useSelector(selectErrorMessage(id));
+
+  const [hasFocus, setFocus] = useState(false);
+  const handleKeyDown = e => {
+    if (e.key === 'Escape') {
+      e.currentTarget.blur();
+    }
+  }
   return (
     <Wrapper>
       <SearchInput
@@ -110,17 +122,22 @@ export const SearchComponent = ({
         type="text"
         placeholder={placeholder}
         onChange={handleChange}
+        onFocus={(e) => setFocus(true)}
+        onBlur={(e) => setFocus(false)}
+        onKeyDown={handleKeyDown}
         autoFocus
       />
-      <SearchResultsArea>
-        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-        {foundNothing && <NoResults>No results found.</NoResults>}
-        {isSearching && <Skeletons />}
-        {!isSearching &&
-          searchResults.map((item) => (
-            <SearchResultItem key={item["@uri"]} item={item} />
-          ))}
-      </SearchResultsArea>
+      {hasFocus && (
+        <SearchResultsArea>
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {foundNothing && <NoResults>No results found.</NoResults>}
+          {isSearching && <Skeletons />}
+          {!isSearching &&
+            searchResults.map((item) => (
+              <SearchResultItem key={item["@uri"]} item={item} />
+            ))}
+        </SearchResultsArea>
+      )}
     </Wrapper>
   );
 };
