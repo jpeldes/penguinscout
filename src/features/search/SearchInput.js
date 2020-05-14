@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import _ from "lodash";
-import { apiSearchWorks } from "app/api";
 import { useDispatch, useSelector } from "react-redux";
 import {
   receiveSearch,
@@ -39,7 +38,7 @@ const SearchResultsArea = styled.div`
   overflow: auto;
 `;
 
-export const SearchInput = ({ id }) => {
+export const SearchInput = ({ id, placeholder = "Search...", apiCall }) => {
   const dispatch = useDispatch();
   const inputEl = useRef(null);
 
@@ -47,7 +46,7 @@ export const SearchInput = ({ id }) => {
 
   const goSearch = async (searchString) => {
     try {
-      const results = await apiSearchWorks(searchString);
+      const results = await apiCall(searchString);
       if (inputEl.current.value === searchString) {
         // Update only if query still matches (fix race condition)
         // TODO: Better solution would be to cancel API call
@@ -77,7 +76,7 @@ export const SearchInput = ({ id }) => {
       <Input
         ref={inputEl}
         type="text"
-        placeholder="Search"
+        placeholder={placeholder}
         onChange={handleChange}
         autoFocus
       />
@@ -85,7 +84,7 @@ export const SearchInput = ({ id }) => {
         {isSearching && <Skeletons />}
         {!isSearching &&
           searchResults.map((item) => (
-            <SearchResultItem key={item.workid} item={item} />
+            <SearchResultItem key={item["@uri"]} item={item} />
           ))}
       </SearchResultsArea>
     </Wrapper>

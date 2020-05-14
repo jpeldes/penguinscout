@@ -2,6 +2,8 @@ import React from "react";
 import { SearchInput } from "features/search/SearchInput";
 import styled from "styled-components";
 
+import { apiSearchWorks, apiSearchTitles } from "app/api";
+
 const Header = styled.header`
   width: 100%;
   background: #fff;
@@ -13,7 +15,16 @@ function App() {
   return (
     <div className="App">
       <Header>
-        <SearchInput id="header" />
+        <SearchInput
+          id="books"
+          apiCall={apiSearchWorks}
+          placeholder="Search books..."
+        />
+        <SearchInput
+          id="titles"
+          apiCall={apiSearchTitles}
+          placeholder="Search titles..."
+        />
       </Header>
       <main>
         <h1>

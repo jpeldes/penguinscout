@@ -69,6 +69,9 @@ export const SearchResultItem = ({ item }) => {
   const keyword = encodeURIComponent(item.titleweb + " " + item.authorweb);
 
   const getImageUrl = (item) => {
+    if (!item.titles || !item.titles.isbn) {
+      return '';
+    }
     let isbn = item.titles.isbn;
     if (_.isArray(isbn)) {
       isbn = item.titles.isbn[0];
@@ -78,7 +81,7 @@ export const SearchResultItem = ({ item }) => {
 
   return (
     <Wrapper>
-      <Avatar><img src={getImageUrl(item)} /></Avatar>
+      <Avatar><img alt="" src={getImageUrl(item)} /></Avatar>
       <RightSide>
         <Title>{item.titleweb}</Title>
         <Details>
