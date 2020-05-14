@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -43,28 +43,33 @@ const useSearch = (id, apiCall) => {
   const dispatch = useDispatch();
   const inputRef = useRef(null);
 
-  const goSearch = async (searchString) => {
-    try {
-      const results = await apiCall(searchString);
-      if (inputRef.current.value === searchString) {
-        dispatch(receiveSearch({ id, results }));
+  const searchRef = useRef(null);
+  useEffect(() => {
+    const goSearch = async (searchString) => {
+      try {
+        const results = await apiCall(searchString);
+        if (inputRef.current.value === searchString) {
+          dispatch(receiveSearch({ id, results }));
+        }
+      } finally {
+        dispatch(toggleSearchState({ id, isSearching: false }));
       }
-    } finally {
-      dispatch(toggleSearchState({ id, isSearching: false }));
-    }
-  };
-  const debouncedSearch = useRef(_.debounce(goSearch, 300)).current;
+    };
+    searchRef.current = _.debounce(goSearch, 300);
+  }, [id, dispatch, apiCall]);
+
   const handleInputChange = () => {
     const searchString = inputRef.current.value;
     if (!searchString) {
-      debouncedSearch.cancel();
+      searchRef.current.cancel();
       dispatch(receiveSearch({ id, results: [] }));
       dispatch(toggleSearchState({ id, isSearching: false }));
     } else {
       dispatch(toggleSearchState({ id, isSearching: true }));
-      debouncedSearch(searchString);
+      searchRef.current(searchString);
     }
   };
+
   return [inputRef, handleInputChange];
 };
 

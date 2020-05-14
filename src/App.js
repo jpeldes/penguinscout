@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SearchComponent } from "features/search/SearchComponent";
 import styled from "styled-components";
 
@@ -13,18 +13,24 @@ const Header = styled.header`
   padding: 1em;
 `;
 
+const View = ({ id, children }) => <div id={id}>{ children }</div>;
+
 function App() {
+  const [activeView, setView] = useState(1);
   return (
     <div className="App">
+      <View id={activeView}>
       <Header>
+      <button onClick={() => setView(Math.max(0, activeView-1))}>Previous view</button>
+      <button onClick={() => setView(activeView+1)}>Next view</button>
         <SearchComponent
-          id="books"
+          id={activeView + "-books"}
           apiCall={apiSearchWorks}
           placeholder="Search books..."
           SearchResultItem={SearchWorksItem}
         />
         <SearchComponent
-          id="titles"
+          id={activeView + "-titles"}
           apiCall={apiSearchTitles}
           placeholder="Search titles on Amazon.com"
           SearchResultItem={SearchTitlesItem}
@@ -33,10 +39,11 @@ function App() {
       <main>
         <h1>
           <span role="img" aria-label="Look up">
-            ☝️
+            ☝️ {activeView}
           </span>
         </h1>
       </main>
+      </View>
     </div>
   );
 }
