@@ -4,10 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   receiveSearch,
   toggleSearchState,
+  clearSearch,
+  setSearchString,
+  setErrorMessage,
   selectResults,
   selectIsSearching,
   selectSearchString,
-  setSearchString,
+  selectFoundNothing,
+  selectErrorMessage,
 } from "./searchSlice";
 
 import styled from "styled-components";
@@ -41,6 +45,16 @@ const SearchResultsArea = styled.div`
   overflow: auto;
 `;
 
+const NoResults = styled.p`
+  text-align: center;
+  color: #676767;
+`;
+
+const ErrorMessage = styled.p`
+  text-align: center;
+  color: indianred;
+`;
+
 const useSearch = (id, apiCall) => {
   const dispatch = useDispatch();
   const inputRef = useRef(null);
@@ -53,6 +67,8 @@ const useSearch = (id, apiCall) => {
         if (inputRef.current.value === searchString) {
           dispatch(receiveSearch({ id, results }));
         }
+      } catch (ex) {
+        dispatch(setErrorMessage({ id, errorMessage: "An error occurred. Please try again later." }));
       } finally {
         dispatch(toggleSearchState({ id, isSearching: false }));
       }
@@ -65,10 +81,8 @@ const useSearch = (id, apiCall) => {
     dispatch(setSearchString({ id, searchString }));
     if (!searchString) {
       searchRef.current.cancel();
-      dispatch(receiveSearch({ id, results: [] }));
-      dispatch(toggleSearchState({ id, isSearching: false }));
+      dispatch(clearSearch({ id }));
     } else {
-      dispatch(toggleSearchState({ id, isSearching: true }));
       searchRef.current(searchString);
     }
   };
@@ -76,11 +90,18 @@ const useSearch = (id, apiCall) => {
   return [inputRef, handleInputChange];
 };
 
-export const SearchComponent = ({ id, placeholder = "Search...", apiCall, SearchResultItem }) => {
-  const searchString = useSelector(selectSearchString(id));
+export const SearchComponent = ({
+  id,
+  placeholder = "Search...",
+  apiCall,
+  SearchResultItem,
+}) => {
   const [inputEl, handleChange] = useSearch(id, apiCall);
+  const foundNothing = useSelector(selectFoundNothing(id));
+  const searchString = useSelector(selectSearchString(id));
   const isSearching = useSelector(selectIsSearching(id));
   const searchResults = useSelector(selectResults(id));
+  const errorMessage = useSelector(selectErrorMessage(id));
   return (
     <Wrapper>
       <SearchInput
@@ -92,6 +113,8 @@ export const SearchComponent = ({ id, placeholder = "Search...", apiCall, Search
         autoFocus
       />
       <SearchResultsArea>
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        {foundNothing && <NoResults>No results found.</NoResults>}
         {isSearching && <Skeletons />}
         {!isSearching &&
           searchResults.map((item) => (
