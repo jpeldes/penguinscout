@@ -6,6 +6,8 @@ import {
   toggleSearchState,
   selectResults,
   selectIsSearching,
+  selectSearchString,
+  setSearchString,
 } from "./searchSlice";
 
 import styled from "styled-components";
@@ -58,8 +60,9 @@ const useSearch = (id, apiCall) => {
     searchRef.current = _.debounce(goSearch, 300);
   }, [id, dispatch, apiCall]);
 
-  const handleInputChange = () => {
+  const handleInputChange = (e) => {
     const searchString = inputRef.current.value;
+    dispatch(setSearchString({ id, searchString }));
     if (!searchString) {
       searchRef.current.cancel();
       dispatch(receiveSearch({ id, results: [] }));
@@ -74,12 +77,14 @@ const useSearch = (id, apiCall) => {
 };
 
 export const SearchComponent = ({ id, placeholder = "Search...", apiCall, SearchResultItem }) => {
+  const searchString = useSelector(selectSearchString(id));
   const [inputEl, handleChange] = useSearch(id, apiCall);
   const isSearching = useSelector(selectIsSearching(id));
   const searchResults = useSelector(selectResults(id));
   return (
     <Wrapper>
       <SearchInput
+        value={searchString}
         ref={inputEl}
         type="text"
         placeholder={placeholder}
