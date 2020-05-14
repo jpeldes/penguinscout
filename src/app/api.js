@@ -17,7 +17,7 @@ export const apiSearchWorks = async (search) => {
 
 export const apiSearchTitles = async (search) => {
   const response = await axios.get(
-    `https://reststop.randomhouse.com/resources/titles/?start=0&max=20&expandLevel=1&search=${encodeURIComponent(
+    `https://reststop.randomhouse.com/resources/titles/?start=0&max=10&expandLevel=1&search=${encodeURIComponent(
       search
     )}`
   );
